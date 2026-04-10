@@ -11,17 +11,13 @@ module.exports = ({ strapi }) => {
     // We allow the port to be unset in case the user is using a CDN
     const port = strapi.plugin("strapi-blurhash").config("port");
 
-    if (port) {
-      console.info(`server config - host: ${host}, port: ${port}`);
-    } else {
-      console.info(`server config - host: ${host}`);
-    }
-
-    console.log("Formats: ", data.formats);
+    strapi.log.info(`server config - host: ${host}, port: ${port ?? ""}`);
 
     // Use the thumbnail instead for faster processing (10+ MB images could take around 40-60s)
     // Formats: thumbnail | small | medium | large
     const rawUrl = data.formats?.thumbnail?.url || data.url;
+
+    strapi.log.info(`Data: ${JSON.stringify(data)}`);
 
     if (data.mime && data.mime.startsWith("image/")) {
       const fullUrl = rawUrl.startsWith("http")
