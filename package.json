@@ -9,7 +9,6 @@
     "displayName": "Strapi Blurhash"
   },
   "dependencies": {
-    "webp-wasm": "^1.0.6",
     "blurhash": "^2.0.5",
     "sharp": "^0.34.5"
   },

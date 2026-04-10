@@ -2,21 +2,10 @@ const { encode } = require("blurhash");
 const sharp = require("sharp");
 
 module.exports = ({ strapi }) => ({
-  async generateBlurhash(file_id) {
+  async generateBlurhash(stream) {
     try {
-      const file = await strapi
-        .plugin("upload")
-        .service("upload")
-        .findOne(file_id);
-
-      if (!file) {
-        throw new Error(`File not found`);
-      }
-
-      const buffer = Buffer.from(file.buffer);
-
       // Decode via sharp
-      const { data, info } = await sharp(buffer)
+      const { data, info } = await sharp(stream)
         .ensureAlpha()
         .raw()
         .toBuffer({ resolveWithObject: true });

@@ -13,22 +13,18 @@ module.exports = ({ strapi }) => {
 
     strapi.log.info(`server config - host: ${host}, port: ${port ?? ""}`);
 
-    // Use the thumbnail instead for faster processing (10+ MB images could take around 40-60s)
+    // Use the largest file. Sharp can handle it
     // Formats: thumbnail | small | medium | large
-    const rawUrl = data.formats?.thumbnail?.url || data.url;
+    const stream = data.formats?.large?.getStream?.();
 
-    strapi.log.info(`Data: ${JSON.stringify(data)}`);
+    console.log("stream", stream);
 
     if (data.mime && data.mime.startsWith("image/")) {
-      const fullUrl = rawUrl.startsWith("http")
-        ? new URL(rawUrl).href
-        : new URL(`https://${rawUrl}`).href;
-
-      console.info(`generating blurhash for image: ${fullUrl}`);
+      console.info(`generating blurhash for image: ${data.url}`);
       data.blurhash = await strapi
         .plugin("strapi-blurhash")
         .service("blurhash")
-        .generateBlurhash(fullUrl);
+        .generateBlurhash(stream);
       console.log(`blurhash generated successfully: ${data.blurhash}`);
     }
 
