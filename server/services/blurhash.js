@@ -4,8 +4,14 @@ const sharp = require("sharp");
 module.exports = ({ strapi }) => ({
   async generateBlurhash(stream) {
     try {
+      const chunks = [];
+      for await (const chunk of stream) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+
       // Decode via sharp
-      const { data, info } = await sharp(stream)
+      const { data, info } = await sharp(buffer)
         .ensureAlpha()
         .raw()
         .toBuffer({ resolveWithObject: true });
