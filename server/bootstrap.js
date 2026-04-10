@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = ({ strapi }) => {
+export const bootstrap = ({ strapi }) => {
   const generateBlurhash = async (event, eventType) => {
     console.info(`generating blurhash for ${eventType} event`);
     const { data, where } = event.params;
@@ -21,12 +21,13 @@ module.exports = ({ strapi }) => {
 
     // Use the thumbnail instead for faster processing (10+ MB images could take around 40-60s)
     // Formats: thumbnail | small | medium | large
-    const url = data.formats?.thumbnail?.url || data.url;
-
-    console.log(url);
+    const rawUrl = data.formats?.thumbnail?.url || data.url;
 
     if (data.mime && data.mime.startsWith("image/")) {
-      const fullUrl = new URL(url).href;
+      const fullUrl = rawUrl.startsWith("http")
+        ? new URL(rawUrl).href
+        : new URL(`https://${rawUrl}`).href;
+
       console.info(`generating blurhash for image: ${fullUrl}`);
       data.blurhash = await strapi
         .plugin("strapi-blurhash")
