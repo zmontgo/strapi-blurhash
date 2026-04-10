@@ -1,5 +1,5 @@
-import { encode } from "blurhash";
-import sharp from "sharp";
+const { encode } = require("blurhash");
+const sharp = require("sharp");
 
 module.exports = ({ strapi }) => ({
   async generateBlurhash(file_id) {
