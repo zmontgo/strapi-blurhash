@@ -1,6 +1,6 @@
 "use strict";
 
-export const bootstrap = ({ strapi }) => {
+module.exports = ({ strapi }) => {
   const generateBlurhash = async (event, eventType) => {
     console.info(`generating blurhash for ${eventType} event`);
     const { data, where } = event.params;
