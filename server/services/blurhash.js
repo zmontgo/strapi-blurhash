@@ -4,33 +4,22 @@ const sharp = require("sharp");
 module.exports = ({ strapi }) => ({
   async generateBlurhash(stream) {
     try {
-      console.time("bufferCreation");
-
       const chunks = [];
       for await (const chunk of stream) {
         chunks.push(chunk);
       }
       const buffer = Buffer.concat(chunks);
 
-      console.timeEnd("bufferCreation");
-
-      console.time("sharpDecode");
-
-      // Decode via sharp
-      const { data, info } = await sharp(buffer)
-        .ensureAlpha()
-        .raw()
-        .toBuffer({ resolveWithObject: true });
-
-      console.timeEnd("sharpDecode");
-
-      console.time("blurhashEncode");
-
-      const blurhash = encode(data, info.width, info.height, 4, 4);
-
-      console.timeEnd("blurhashEncode");
-
-      return blurhash;
+      return new Promise((resolve, reject) => {
+        sharp(buffer)
+          .raw()
+          .ensureAlpha()
+          .resize(32, 32, { fit: "inside" })
+          .toBuffer((err, buffer, { width, height }) => {
+            if (err) return reject(err);
+            resolve(encode(new Uint8ClampedArray(buffer), width, height, 4, 4));
+          });
+      });
     } catch (error) {
       strapi.log.error(`Error generating blurhash: ${error.message}`);
       throw error;

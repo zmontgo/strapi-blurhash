@@ -11,11 +11,31 @@ module.exports = ({ strapi }) => {
     // We allow the port to be unset in case the user is using a CDN
     const port = strapi.plugin("strapi-blurhash").config("port");
 
+    let size = "small";
+
+    if (strapi.plugin("strapi-blurhash").config("size")) {
+      const chosenSize = strapi.plugin("strapi-blurhash").config("size");
+
+      if (
+        chosenSize === "small" ||
+        chosenSize === "medium" ||
+        chosenSize === "large"
+      ) {
+        size = chosenSize;
+      } else {
+        strapi.log.warn(
+          `invalid size config: ${chosenSize}, using default size: small`,
+        );
+      }
+    } else {
+      strapi.log.warn("no size config found, using default size: small");
+    }
+
     strapi.log.info(`server config - host: ${host}, port: ${port ?? ""}`);
 
     // Use the largest file. Sharp can handle it
     // Formats: thumbnail | small | medium | large
-    const stream = data.formats?.large?.getStream?.();
+    const stream = data.formats?.[size]?.getStream?.();
 
     console.log("stream", stream);
 
