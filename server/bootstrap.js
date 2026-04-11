@@ -2,7 +2,7 @@
 
 module.exports = ({ strapi }) => {
   const generateBlurhash = async (event, eventType) => {
-    console.info(`generating blurhash for ${eventType} event`);
+    strapi.log.info(`generating blurhash for ${eventType} event`);
     const { data, where } = event.params;
 
     const host =
@@ -37,15 +37,13 @@ module.exports = ({ strapi }) => {
     // Formats: thumbnail | small | medium | large
     const stream = data.formats?.[size]?.getStream?.();
 
-    console.log("stream", stream);
-
     if (data.mime && data.mime.startsWith("image/")) {
       console.info(`generating blurhash for image: ${data.url}`);
       data.blurhash = await strapi
         .plugin("strapi-blurhash")
         .service("blurhash")
         .generateBlurhash(stream);
-      console.log(`blurhash generated successfully: ${data.blurhash}`);
+      strapi.log.info(`blurhash generated successfully: ${data.blurhash}`);
     }
 
     if (eventType === "beforeUpdate") {
@@ -55,7 +53,7 @@ module.exports = ({ strapi }) => {
       const forceRegenerateOnUpdate = strapi
         .plugin("strapi-blurhash")
         .config("forceRegenerateOnUpdate");
-      console.log(
+      strapi.log.info(
         `update config - regenerateOnUpdate: ${regenerateOnUpdate}, forceRegenerateOnUpdate: ${forceRegenerateOnUpdate}`,
       );
 
@@ -63,7 +61,7 @@ module.exports = ({ strapi }) => {
         select: ["url", "blurhash", "name", "mime"],
         where,
       });
-      console.log(`found existing file: ${fullData.name}`);
+      strapi.log.info(`found existing file: ${fullData.name}`);
 
       if (
         fullData.mime.startsWith("image/") &&
@@ -75,12 +73,12 @@ module.exports = ({ strapi }) => {
         } else {
           fullDataUrl = `${"http://" + host + ":" + port}${fullData.url}`;
         }
-        console.log(`regenerating blurhash for image: ${fullDataUrl}`);
+        strapi.log.info(`regenerating blurhash for image: ${fullDataUrl}`);
         data.blurhash = await strapi
           .plugin("strapi-blurhash")
           .service("blurhash")
           .generateBlurhash(fullDataUrl);
-        console.log(`blurhash regenerated successfully: ${data.blurhash}`);
+        strapi.log.info(`blurhash regenerated successfully: ${data.blurhash}`);
       }
     }
   };
@@ -90,5 +88,5 @@ module.exports = ({ strapi }) => {
     beforeCreate: (event) => generateBlurhash(event, "beforeCreate"),
     beforeUpdate: (event) => generateBlurhash(event, "beforeUpdate"),
   });
-  console.log("strapi-blurhash plugin bootstrap completed");
+  strapi.log.info("strapi-blurhash plugin bootstrap completed");
 };
