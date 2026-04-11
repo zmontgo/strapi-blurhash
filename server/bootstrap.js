@@ -38,7 +38,7 @@ module.exports = ({ strapi }) => {
     const stream = data.formats?.[size]?.getStream?.();
 
     if (data.mime && data.mime.startsWith("image/")) {
-      console.info(`generating blurhash for image: ${data.url}`);
+      strapi.log.info(`generating blurhash for image: ${data.url}`);
       data.blurhash = await strapi
         .plugin("strapi-blurhash")
         .service("blurhash")
